@@ -24,6 +24,12 @@ public class BooksServlet extends HttpServlet {
             throws IOException {
         response.setContentType("text/html");
 
+        HttpSession session = request.getSession();
+
+        if (session.getAttribute("id") == null) {
+            response.sendRedirect(request.getContextPath() + "/main-servlet");
+        }
+
         PrintWriter out = response.getWriter();
         out.println("<html><body>");
         out.println("<h1>Book List</h1>");

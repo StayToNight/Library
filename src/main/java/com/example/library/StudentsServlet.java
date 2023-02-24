@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,16 +21,22 @@ public class StudentsServlet extends HttpServlet {
 
     static List<Student> studentList = new ArrayList<>(
             Arrays.asList(
-                    new Student(29293, "Nurtas", "Nenurtas", "2006"),
-                    new Student(29294, "Almas", "Nealmas", "2006"),
-                    new Student(29296, "Abylai", "Neabilay", "2001"),
-                    new Student(29297, "Abay", "Neabay", "2011")
+                    new Student(29293, "nurtas123", "Nurtas", "Nenurtas", "2006"),
+                    new Student(29294, "nurtas123", "Almas", "Nealmas", "2006"),
+                    new Student(29296, "nurtas123", "Abylai", "Neabilay", "2001"),
+                    new Student(29297, "nurtas123", "Abay", "Neabay", "2011")
             )
     );
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         response.setContentType("text/html");
+
+        HttpSession session = request.getSession();
+
+        if (session.getAttribute("id") == null) {
+            response.sendRedirect(request.getContextPath() + "/main-servlet");
+        }
 
         PrintWriter out = response.getWriter();
         out.println("<html><body>");
@@ -38,43 +45,46 @@ public class StudentsServlet extends HttpServlet {
         out.println("<table border='1'>");
         out.println("<tr><th>ID</th><th>Name</th><th>Surname</th><th>Group</th><th>Borrowed Books</th><th>Assign Book</th></tr>");
         for (Student student : studentList) {
-            out.println("<tr>");
-            out.println("<td>" + student.getId() + "</td>");
-            out.println("<td>" + student.getName() + "</td>");
-            out.println("<td>" + student.getSurname() + "</td>");
-            out.println("<td>" + student.getGroup() + "</td>");
-            out.println("<td>");
-            if (student.getBorrowedBooks().isEmpty()) {
-                out.println("None");
-            } else {
-                for (Book book : student.getBorrowedBooks()) {
-                    out.println(book.getTitle() + "<br>");
-                }
-            }
-            out.println("</td>");
-            out.println("<td><form method='post'>");
-            out.println("<input type='hidden' name='idSign' value='" + student.getId() + "'>");
-            out.println("<select name='bookTitleSign'>");
-            for (Book book : bookList) {
-                if (book.getQuantity() > 0) {
-                    out.println("<option value='" + book.getTitle() + "'>" + book.getTitle() + " by " + book.getAuthor() + "</option>");
-                }
-            }
-            out.println("</select>");
-            out.println("<input name='actions' type='submit' value='Assign Book'>");
-            out.println("</form></td>");
+            if (session.getAttribute("id") != null)
+                if (student.getId() == (int) session.getAttribute("id")) {
+                    out.println("<tr>");
+                    out.println("<td>" + student.getId() + "</td>");
+                    out.println("<td>" + student.getName() + "</td>");
+                    out.println("<td>" + student.getSurname() + "</td>");
+                    out.println("<td>" + student.getGroup() + "</td>");
+                    out.println("<td>");
+                    if (student.getBorrowedBooks().isEmpty()) {
+                        out.println("None");
+                    } else {
+                        for (Book book : student.getBorrowedBooks()) {
+                            out.println(book.getTitle() + "<br>");
+                        }
+                    }
+                    out.println("</td>");
+                    out.println("<td><form method='post'>");
+                    out.println("<input type='hidden' name='idSign' value='" + student.getId() + "'>");
+                    out.println("<select name='bookTitleSign'>");
+                    for (Book book : bookList) {
+                        if (book.getQuantity() > 0) {
+                            out.println("<option value='" + book.getTitle() + "'>" + book.getTitle() + " by " + book.getAuthor() + "</option>");
+                        }
+                    }
+                    out.println("</select>");
+                    out.println("<input name='actions' type='submit' value='Assign Book'>");
+                    out.println("</form></td>");
 
-            out.println("<td><form method='post'>");
-            out.println("<input type='hidden' name='idUnSign' value='" + student.getId() + "'>");
-            out.println("<select name='bookTitleUnSign'>");
-            for (Book book : student.getBorrowedBooks()) {
-                out.println("<option value='" + book.getTitle() + "'>" + book.getTitle() + " by " + book.getAuthor() + "</option>");
-            }
-            out.println("</select>");
-            out.println("<input name='actions' type='submit' value='UnAssign Book'>");
-            out.println("</form></td>");
+                    out.println("<td><form method='post'>");
+                    out.println("<input type='hidden' name='idUnSign' value='" + student.getId() + "'>");
+                    out.println("<select name='bookTitleUnSign'>");
+                    for (Book book : student.getBorrowedBooks()) {
+                        out.println("<option value='" + book.getTitle() + "'>" + book.getTitle() + " by " + book.getAuthor() + "</option>");
+                    }
+                    out.println("</select>");
+                    out.println("<input name='actions' type='submit' value='UnAssign Book'>");
+                    out.println("</form></td>");
 
-            out.println("</tr>");
+                    out.println("</tr>");
+                }
         }
         out.println("</table>");
 
@@ -87,11 +97,17 @@ public class StudentsServlet extends HttpServlet {
         out.println("<input name='actions' type='submit' value='Add'>");
         out.println("</form>");
 
+        out.println("<h2>Logout</h2>");
+        out.println("<form method='post'>");
+        out.println("<input name='actions' type='submit' value='Logout'>");
+        out.println("</form>");
+
         out.println("</body></html>");
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+        HttpSession session = request.getSession();
         String actions = request.getParameter("actions");
         if (actions.equals("Assign Book")) {
             int studentIdToSign = Integer.parseInt(request.getParameter("idSign"));
@@ -101,13 +117,16 @@ public class StudentsServlet extends HttpServlet {
             int studentIdToUnSign = Integer.parseInt(request.getParameter("idUnSign"));
             String bookTitleToUnSign = request.getParameter("bookTitleUnSign");
             unSignBook(studentIdToUnSign, bookTitleToUnSign);
-        } else if (actions.equals("Add"))  {
+        } else if (actions.equals("Add")) {
             String name = request.getParameter("name");
             String surname = request.getParameter("surname");
             String group = request.getParameter("group");
             int id = Integer.parseInt(request.getParameter("id"));
-            Student newStudent = new Student(id, name, surname, group);
+            Student newStudent = new Student(id, "", name, surname, group);
             studentList.add(newStudent);
+        } else if (actions.equals("Logout")) {
+            session.removeAttribute("id");
+            session.removeAttribute("password");
         }
 
         doGet(request, response);

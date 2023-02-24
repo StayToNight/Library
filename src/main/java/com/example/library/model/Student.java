@@ -5,13 +5,15 @@ import java.util.List;
 
 public class Student {
     private int id;
+    private String password;
     private String name;
     private String surname;
     private String group;
     private List<Book> borrowedBooks = new ArrayList<>();
 
-    public Student(int id, String name, String surname, String group) {
+    public Student(int id, String password, String name, String surname, String group) {
         this.id = id;
+        this.password = password;
         this.name = name;
         this.surname = surname;
         this.group = group;
@@ -55,6 +57,14 @@ public class Student {
 
     public void setBorrowedBooks(List<Book> borrowedBooks) {
         this.borrowedBooks = borrowedBooks;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
 
