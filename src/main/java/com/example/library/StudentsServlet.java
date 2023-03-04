@@ -16,7 +16,7 @@ import java.util.List;
 
 import static com.example.library.BooksServlet.bookList;
 
-@WebServlet(name = "studentsServlet", value = "/students-servlet")
+@WebServlet(name = "studentsServlet", value = "/authed/students-servlet")
 public class StudentsServlet extends HttpServlet {
 
     static List<Student> studentList = new ArrayList<>(
@@ -33,10 +33,6 @@ public class StudentsServlet extends HttpServlet {
         response.setContentType("text/html");
 
         HttpSession session = request.getSession();
-
-        if (session.getAttribute("id") == null) {
-            response.sendRedirect(request.getContextPath() + "/main-servlet");
-        }
 
         PrintWriter out = response.getWriter();
         out.println("<html><body>");
@@ -127,6 +123,7 @@ public class StudentsServlet extends HttpServlet {
         } else if (actions.equals("Logout")) {
             session.removeAttribute("id");
             session.removeAttribute("password");
+            response.sendRedirect(request.getContextPath() + "/main-servlet");
         }
 
         doGet(request, response);

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-@WebServlet(name = "booksServlet", value = "/books-servlet")
+@WebServlet(name = "booksServlet", value = "/authed/books-servlet")
 public class BooksServlet extends HttpServlet {
 
     public static List<Book> bookList = new ArrayList<>(
@@ -23,12 +23,6 @@ public class BooksServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         response.setContentType("text/html");
-
-        HttpSession session = request.getSession();
-
-        if (session.getAttribute("id") == null) {
-            response.sendRedirect(request.getContextPath() + "/main-servlet");
-        }
 
         PrintWriter out = response.getWriter();
         out.println("<html><body>");

@@ -9,9 +9,6 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.example.library.StudentsServlet.studentList;
 
@@ -21,12 +18,6 @@ public class MainServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         response.setContentType("text/html");
-
-        HttpSession session = request.getSession();
-
-        if (session.getAttribute("id") != null) {
-            response.sendRedirect(request.getContextPath() + "/students-servlet");
-        }
 
         PrintWriter out = response.getWriter();
         out.println("<html><body>");
@@ -71,6 +62,8 @@ public class MainServlet extends HttpServlet {
                 }
             }
 
+            response.sendRedirect(request.getContextPath() + "/authed/students-servlet");
+
         } else if (actions.equals("Reg")) {
             String name = request.getParameter("name");
             String password = request.getParameter("password");
@@ -82,6 +75,8 @@ public class MainServlet extends HttpServlet {
             studentList.add(newStudent);
             session.setAttribute("id", id);
             session.setAttribute("password", password);
+
+            response.sendRedirect(request.getContextPath() + "/authed/students-servlet");
         }
 
         doGet(request, response);
